@@ -21,7 +21,7 @@ commonname=www.ianvpn.xyz
 email=admin@IanVPN.xyz
 
 # simple password minimal
-wget -O /etc/pam.d/common-password "https://raw.githubusercontent.com/anpenohopi/teste/main/password"
+wget -O /etc/pam.d/common-password "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/password"
 chmod +x /etc/pam.d/common-password
 
 # go to root
@@ -109,11 +109,22 @@ systemctl enable nginx
 touch /etc/nginx/conf.d/alone.conf
 cat <<EOF >>/etc/nginx/conf.d/alone.conf
 server {
-	listen 81;
-	listen [::]:81;
-	server_name www.mosti.gov.my.${domain};
-	# shellcheck disable=SC2154
-	return 301 https://www.mosti.gov.my.${domain};
+  listen 0.0.0.0:81;
+  server_name  www.mosti.gov.my.${domain};
+  access_log /var/log/nginx/vps-access.log;
+  error_log /var/log/nginx/vps-error.log error;
+  #root   /home/vps/public_html;
+rewrite ^/(.*)$ http://www.mosti.gov.my.${domain}/$1 permanent;
+  location / {
+    index  index.html index.htm index.php;
+    try_files $uri $uri/ /index.php?$args;
+  }
+  location ~ \.php$ {
+    include /etc/nginx/fastcgi_params;
+    fastcgi_pass  127.0.0.1:9000;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  }
 }
 server {
 		listen 127.0.0.1:31300;
@@ -122,7 +133,7 @@ server {
 }
 server {
 	listen 127.0.0.1:31302 http2;
-	server_name www.mosti.gov.my.${domain};
+	server_name ${domain};
 	root /usr/share/nginx/html;
 	location /s/ {
     		add_header Content-Type text/plain;
@@ -155,7 +166,7 @@ server {
 }
 server {
 	listen 127.0.0.1:31300;
-	server_name www.mosti.gov.my.${domain};
+	server_name ${domain};
 	root /usr/share/nginx/html;
 	location /s/ {
 		add_header Content-Type text/plain;
@@ -179,7 +190,7 @@ rm -f /usr/share/nginx/html.zip*
 
 # install badvpn
 cd
-wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/anpenohopi/teste/main/badvpn-udpgw64"
+wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/badvpn-udpgw64"
 chmod +x /usr/bin/badvpn-udpgw
 sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 500' /etc/rc.local
 screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 500
@@ -199,7 +210,7 @@ echo "/usr/sbin/nologin" >> /etc/shells
 # install squid
 cd
 apt -y install squid3
-wget -O /etc/squid/squid.conf "https://raw.githubusercontent.com/anpenohopi/teste/main/squid3.conf"
+wget -O /etc/squid/squid.conf "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/squid3.conf"
 sed -i $MYIP2 /etc/squid/squid.conf
 
 # setting vnstat
@@ -249,7 +260,7 @@ sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 /etc/init.d/stunnel4 restart
 
 #OpenVPN
-wget https://raw.githubusercontent.com/anpenohopi/teste/main/vpn.sh &&  chmod +x vpn.sh && ./vpn.sh
+wget https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/vpn.sh &&  chmod +x vpn.sh && ./vpn.sh
 
 # install fail2ban
 apt -y install fail2ban
@@ -265,7 +276,7 @@ clear
 echo; echo 'Installing DOS-Deflate 0.6'; echo
 echo; echo -n 'Downloading source files...'
 apt install -y dnsutils tcpdump dsniff grepcidr
-wget -qO ddos.zip "https://raw.githubusercontent.com/anpenohopi/teste/main/ddos-deflate.zip"
+wget -qO ddos.zip "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/ddos-deflate.zip"
 unzip ddos.zip
 cd ddos-deflate
 chmod +x install.sh
@@ -278,7 +289,7 @@ echo 'Config file is at /usr/local/ddos/ddos.conf'
 echo 'Please send in your comments and/or suggestions to zaf@vsnl.com'
 
 # banner /etc/issue.net
-wget -O /etc/issue.net "https://raw.githubusercontent.com/anpenohopi/teste/main/banner.conf"
+wget -O /etc/issue.net "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/banner.conf"
 echo "Banner /etc/issue.net" >>/etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
 
@@ -302,61 +313,61 @@ netfilter-persistent reload
 # download script
 cd /usr/bin
 # menu
-wget -O menu "https://raw.githubusercontent.com/anpenohopi/teste/main/menu.sh"
+wget -O menu "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/menu.sh"
 # menu ssh-ovpn
-wget -O m-sshovpn "https://raw.githubusercontent.com/anpenohopi/teste/main/m-sshovpn.sh"
-wget -O usernew "https://raw.githubusercontent.com/anpenohopi/teste/main/usernew.sh"
-wget -O trial "https://raw.githubusercontent.com/anpenohopi/teste/main/trial.sh"
-wget -O renew "https://raw.githubusercontent.com/anpenohopi/teste/main/renew.sh"
-wget -O hapus "https://raw.githubusercontent.com/anpenohopi/teste/main/hapus.sh"
-wget -O cek "https://raw.githubusercontent.com/anpenohopi/teste/main/cek.sh"
-wget -O member "https://raw.githubusercontent.com/anpenohopi/teste/main/member.sh"
-wget -O delete "https://raw.githubusercontent.com/anpenohopi/teste/main/delete.sh"
-wget -O autokill "https://raw.githubusercontent.com/anpenohopi/teste/main/autokill.sh"
-wget -O ceklim "https://raw.githubusercontent.com/anpenohopi/teste/main/ceklim.sh"
-wget -O tendang "https://raw.githubusercontent.com/anpenohopi/teste/main/tendang.sh"
+wget -O m-sshovpn "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/m-sshovpn.sh"
+wget -O usernew "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/usernew.sh"
+wget -O trial "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/trial.sh"
+wget -O renew "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/renew.sh"
+wget -O hapus "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/hapus.sh"
+wget -O cek "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/cek.sh"
+wget -O member "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/member.sh"
+wget -O delete "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/delete.sh"
+wget -O autokill "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/autokill.sh"
+wget -O ceklim "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/ceklim.sh"
+wget -O tendang "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/tendang.sh"
 # menu wg
 cd /usr/bin
-wget -O m-wg "https://raw.githubusercontent.com/anpenohopi/teste/main/m-wg.sh"
+wget -O m-wg "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/m-wg.sh"
 # menu ssr
-wget -O m-ss "https://raw.githubusercontent.com/anpenohopi/teste/main/m-ss.sh"
+wget -O m-ss "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/m-ss.sh"
 # menu trojan
-wget -O m-trojan "https://raw.githubusercontent.com/anpenohopi/teste/main/m-trojan.sh"
+wget -O m-trojan "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/m-trojan.sh"
 # menu system
-wget -O m-system "https://raw.githubusercontent.com/anpenohopi/teste/main/m-system.sh"
-wget -O m-domain "https://raw.githubusercontent.com/anpenohopi/teste/main/m-domain.sh"
-wget -O add-host "https://raw.githubusercontent.com/anpenohopi/teste/main/add-host.sh"
-wget -O cff "https://raw.githubusercontent.com/anpenohopi/teste/main/cff.sh"
-wget -O cfd "https://raw.githubusercontent.com/anpenohopi/teste/main/cfd.sh"
-wget -O cfh "https://raw.githubusercontent.com/anpenohopi/teste/main/cfh.sh"
-wget -O certv2ray "https://raw.githubusercontent.com/anpenohopi/teste/main/certv2ray.sh"
-wget -O port-change "https://raw.githubusercontent.com/anpenohopi/teste/main/port-change.sh"
+wget -O m-system "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/m-system.sh"
+wget -O m-domain "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/m-domain.sh"
+wget -O add-host "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/add-host.sh"
+wget -O cff "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/cff.sh"
+wget -O cfd "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/cfd.sh"
+wget -O cfh "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/cfh.sh"
+wget -O certv2ray "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/certv2ray.sh"
+wget -O port-change "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/port-change.sh"
    # change port
-wget -O port-ssl "https://raw.githubusercontent.com/anpenohopi/teste/main/port-ssl.sh"
-wget -O port-ovpn "https://raw.githubusercontent.com/anpenohopi/teste/main/port-ovpn.sh"
-wget -O port-wg "https://raw.githubusercontent.com/anpenohopi/teste/main/port-wg.sh"
-wget -O port-tr "https://raw.githubusercontent.com/anpenohopi/teste/main/port-tr.sh"
-wget -O port-squid "https://raw.githubusercontent.com/anpenohopi/teste/main/port-squid.sh"
+wget -O port-ssl "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/port-ssl.sh"
+wget -O port-ovpn "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/port-ovpn.sh"
+wget -O port-wg "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/port-wg.sh"
+wget -O port-tr "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/port-tr.sh"
+wget -O port-squid "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/port-squid.sh"
 # menu system
-wget -O m-webmin "https://raw.githubusercontent.com/anpenohopi/teste/main/m-webmin.sh"
-wget -O ram "https://raw.githubusercontent.com/anpenohopi/teste/main/ram.sh"
-wget -O speedtest "https://raw.githubusercontent.com/anpenohopi/teste/main/speedtest_cli.py"
-wget -O info-menu "https://raw.githubusercontent.com/anpenohopi/teste/main/info-menu.sh"
-wget -O vpsinfo "https://raw.githubusercontent.com/anpenohopi/teste/main/vpsinfo.sh"
-wget -O status "https://raw.githubusercontent.com/anpenohopi/teste/main/status.sh"
-wget -O about "https://raw.githubusercontent.com/anpenohopi/teste/main/about.sh"
-wget -O bbr "https://raw.githubusercontent.com/anpenohopi/teste/main/bbr.sh"
-wget -O auto-reboot "https://raw.githubusercontent.com/anpenohopi/teste/main/auto-reboot.sh"
-wget -O clear-log "https://raw.githubusercontent.com/anpenohopi/teste/main/clear-log.sh"
-wget -O clearcache "https://raw.githubusercontent.com/anpenohopi/teste/main/clearcache.sh"
-wget -O restart "https://raw.githubusercontent.com/anpenohopi/teste/main/restart.sh"
-wget -O bw "https://raw.githubusercontent.com/anpenohopi/teste/main/bw.sh"
-wget -O resett "https://raw.githubusercontent.com/anpenohopi/teste/main/resett.sh"
-wget -O kernel-updt "https://raw.githubusercontent.com/anpenohopi/teste/main/kernel-updt.sh"
+wget -O m-webmin "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/m-webmin.sh"
+wget -O ram "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/ram.sh"
+wget -O speedtest "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/speedtest_cli.py"
+wget -O info-menu "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/info-menu.sh"
+wget -O vpsinfo "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/vpsinfo.sh"
+wget -O status "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/status.sh"
+wget -O about "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/about.sh"
+wget -O bbr "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/bbr.sh"
+wget -O auto-reboot "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/auto-reboot.sh"
+wget -O clear-log "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/clear-log.sh"
+wget -O clearcache "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/clearcache.sh"
+wget -O restart "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/restart.sh"
+wget -O bw "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/bw.sh"
+wget -O resett "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/resett.sh"
+wget -O kernel-updt "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/kernel-updt.sh"
 #xpired
-wget -O xp "https://raw.githubusercontent.com/anpenohopi/teste/main/xp.sh"
-wget -O xray-xp "https://raw.githubusercontent.com/anpenohopi/teste/main/xray-xp.sh"
-wget -O v2ray-xp "https://raw.githubusercontent.com/anpenohopi/teste/main/v2ray-xp.sh"
+wget -O xp "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/xp.sh"
+wget -O xray-xp "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/xray-xp.sh"
+wget -O v2ray-xp "https://raw.githubusercontent.com/Iansoftware/Script-IANVPN/main/v2ray-xp.sh"
 
 chmod +x menu
 chmod +x m-sshovpn
