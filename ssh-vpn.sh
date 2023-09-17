@@ -109,22 +109,16 @@ systemctl enable nginx
 touch /etc/nginx/conf.d/alone.conf
 cat <<EOF >>/etc/nginx/conf.d/alone.conf
 server {
-  listen 0.0.0.0:81;
-  server_name  www.mosti.gov.my.${domain};
-  access_log /var/log/nginx/vps-access.log;
-  error_log /var/log/nginx/vps-error.log error;
-  #root   /home/vps/public_html;
-rewrite ^/(.*)$ http://www.mosti.gov.my.${domain}/$1 permanent;
-  location / {
-    index  index.html index.htm index.php;
-    try_files $uri $uri/ /index.php?$args;
-  }
-  location ~ \.php$ {
-    include /etc/nginx/fastcgi_params;
-    fastcgi_pass  127.0.0.1:9000;
-    fastcgi_index index.php;
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-  }
+	listen 81;
+	listen 0.0.0.0:81;
+	server_name ${domain};
+	# shellcheck disable=SC2154
+	return 301 https://${domain};
+}
+server {
+		listen 127.0.0.1:31300;
+		server_name _;
+		return 403;
 }
 server {
 		listen 127.0.0.1:31300;
